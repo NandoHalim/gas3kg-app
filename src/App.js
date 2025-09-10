@@ -40,13 +40,12 @@ function App() {
   const [confirmReset, setConfirmReset] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [showTests, setShowTests] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0); // paksa remount view setelah reset
+  const [refreshKey, setRefreshKey] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
 
   // ====== STOCKS STATE ======
   const [stocks, setStocks] = useState({});
 
-  // Helper: refresh stok dari DB
   const refreshStocks = async () => {
     try {
       const map = await DataService.loadStocks();
@@ -92,7 +91,7 @@ function App() {
   const proceedReset = async () => {
     setResetting(true);
     try {
-      const fresh = await DataService.resetAllDb(); // admin-only (dicek di service)
+      const fresh = await DataService.resetAllDb();
       setStocks(fresh);
       setRefreshKey((k) => k + 1);
       push("Data berhasil direset", "success");
@@ -121,7 +120,6 @@ function App() {
     switch (currentView) {
       case "dashboard":
         return <DashboardView key={`dash-${refreshKey}`} stocks={stocks} />;
-
       case "penjualan":
         return (
           <PenjualanView
@@ -131,7 +129,6 @@ function App() {
             onCancel={() => setCurrentView("dashboard")}
           />
         );
-
       case "stok":
         return (
           <StokView
@@ -141,23 +138,23 @@ function App() {
             onCancel={() => setCurrentView("dashboard")}
           />
         );
-
       case "riwayat":
         return <RiwayatView key={`his-${refreshKey}`} />;
-
       default:
         return <DashboardView key={`dash-${refreshKey}`} stocks={stocks} />;
     }
   };
 
-  // FIX: Jangan pakai satu baris return, biar aman saat build
+  // ====== FIX: jangan pakai short return ======
   if (initializing) {
     return <div className="p-4">Loading…</div>;
   }
+
   if (!user) {
     return <LoginView />;
   }
 
+  // ====== MAIN RENDER ======
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
       <Header
